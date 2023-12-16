@@ -1,6 +1,8 @@
 pub mod param;
+
 use crate::{task_center, utils};
 use gitlab::{api::projects::merge_requests::CreateMergeRequest, api::Query, types, Gitlab};
+use std::env;
 
 #[derive(Debug)]
 pub struct GitlabCli {
@@ -8,8 +10,14 @@ pub struct GitlabCli {
 }
 
 impl GitlabCli {
-    pub fn new() -> Result<GitlabCli, gitlab::GitlabError> {
-        Gitlab::new("code.byted.org", "edJh58BvMRzUkZcG69mR").map(|c| GitlabCli { inner: c })
+    pub fn new() -> Result<GitlabCli, String> {
+        let (host, key) = (
+            env::var("OXI_GIT_HOST").map_err(|e| e.to_string())?,
+            env::var("OXI_GIT_KEY").map_err(|e| e.to_string())?,
+        );
+        Gitlab::new(host, key)
+            .map(|c| GitlabCli { inner: c })
+            .map_err(|e| e.to_string())
     }
 
     pub fn create_mr(
@@ -33,7 +41,6 @@ impl GitlabCli {
         let id: u64 = source
             .parse()
             .map_err(|_| format!("get source id {:?} err", source))?;
-        // https://code.byted.org/people/payroll_dmp/merge_requests/2246
         gitlab::api::projects::merge_requests::ApproveMergeRequest::builder()
             .project(p.project.to_owned().ok_or("project empty")?)
             .merge_request(id)
@@ -74,7 +81,7 @@ pub extern "C" fn create_mr(param: param::CreateMRParam) {
 pub extern "C" fn approve_mr(param: param::CreateMRParam) {
     let p = param::CreateMRParamOwned::from(&param);
     let task_res = task_center::push_task(Box::new(move || {
-        let cli =  GitlabCli::new();
+        let cli = GitlabCli::new();
         if let Err(ref e) = cli {
             utils::nvim_error(format!("new gitlab err: {}", e));
             return;
