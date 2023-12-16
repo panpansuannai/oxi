@@ -1,0 +1,18 @@
+[package]
+name = "oxi"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+neovim-0-9 = []
+test_function = []
+
+[lib]
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gitlab = "0.1604.0"
+nvim-oxi = {version = "0.3.0", features = ["neovim-0-9"]}
+lazy_static = "1.4"
