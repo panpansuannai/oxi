@@ -1,6 +1,6 @@
-use std::ffi;
-use nvim_oxi::{api, api::types, api::opts};
 use crate::utils;
+use nvim_oxi::{api, api::opts, api::types};
+use std::ffi;
 
 #[repr(C)]
 pub struct StructType {
@@ -9,9 +9,15 @@ pub struct StructType {
 
 #[no_mangle]
 pub extern "C" fn do_some_thing() {
-    let notify_result = api::notify("doing", types::LogLevel::Info, &opts::NotifyOpts {});
-    if notify_result.is_err() {
-        println!("hello")
+    if let Err(e) = utils::nvim_exec_lua(
+        r#"
+    print('hello')
+    print('world')
+    local i = "hello"
+    print(i.." pan")
+    "#,
+    ) {
+        utils::nvim_error(&e);
     }
 }
 

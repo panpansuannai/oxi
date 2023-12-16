@@ -14,7 +14,7 @@ lazy_static! {
 #[no_mangle]
 pub extern "C" fn schedule_task() {
     if let Err(sche_err) = scheduler() {
-        crate::utils::nvim_error(sche_err)
+        crate::utils::nvim_error(&sche_err)
     }
 }
 

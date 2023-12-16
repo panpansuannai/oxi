@@ -4,8 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
+default = ["test_function", "neovim-0-9", "wip"]
 neovim-0-9 = []
 test_function = []
+wip = []
 
 [lib]
 crate-type = ["cdylib"]

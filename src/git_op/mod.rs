@@ -57,7 +57,7 @@ pub extern "C" fn create_mr(param: param::CreateMRParam) {
     let task_res = task_center::push_task(Box::new(move || {
         let cli = GitlabCli::new();
         if let Err(ref e) = cli {
-            utils::nvim_error(format!("new gitlab err: {}", e));
+            utils::nvim_error(&format!("new gitlab err: {}", e));
             return;
         }
         let cli = cli.unwrap();
@@ -67,12 +67,12 @@ pub extern "C" fn create_mr(param: param::CreateMRParam) {
                 utils::nvim_info(format!("MR: {}", mr.web_url));
             })
             .map_err(|e| {
-                utils::nvim_error(format!("create MR err: {}", e));
+                utils::nvim_error(&format!("create MR err: {}", e));
             });
     }));
 
     if let Err(e) = task_res {
-        utils::nvim_error(format!("push task err: {:?}", e));
+        utils::nvim_error(&format!("push task err: {:?}", e));
     }
     let _ = nvim_oxi::api::command("lua vim.fn.ScheduleTask()");
 }
@@ -83,7 +83,7 @@ pub extern "C" fn approve_mr(param: param::CreateMRParam) {
     let task_res = task_center::push_task(Box::new(move || {
         let cli = GitlabCli::new();
         if let Err(ref e) = cli {
-            utils::nvim_error(format!("new gitlab err: {}", e));
+            utils::nvim_error(&format!("new gitlab err: {}", e));
             return;
         }
         let cli = cli.unwrap();
@@ -93,12 +93,12 @@ pub extern "C" fn approve_mr(param: param::CreateMRParam) {
                 utils::nvim_info(format!("approve mr success!"));
             })
             .map_err(|e| {
-                utils::nvim_error(format!("approve MR err: {}", e));
+                utils::nvim_error(&format!("approve MR err: {}", e));
             });
     }));
 
     if let Err(e) = task_res {
-        utils::nvim_error(format!("push task err: {:?}", e));
+        utils::nvim_error(&format!("push task err: {:?}", e));
     }
     let _ = nvim_oxi::api::command("lua vim.fn.ScheduleTask()");
 }

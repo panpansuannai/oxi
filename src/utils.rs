@@ -1,5 +1,5 @@
+use nvim_oxi::{api, api::opts, api::types};
 use std::ffi;
-use nvim_oxi::{api, api::types, api::opts};
 
 pub type CharPtr = *const ffi::c_char;
 
@@ -22,10 +22,16 @@ pub fn ffi_to_str(p: CharPtr) -> Option<String> {
     }
 }
 
-pub fn nvim_info(s: std::string::String) {
-    let _ = api::notify(s.as_str(), types::LogLevel::Info, &opts::NotifyOpts {});
+pub fn nvim_info<T: AsRef<str>>(s: T) {
+    let _ = api::notify(s.as_ref(), types::LogLevel::Info, &opts::NotifyOpts {});
 }
 
-pub fn nvim_error(s: std::string::String) {
-    let _ = api::notify(s.as_str(), types::LogLevel::Error, &opts::NotifyOpts {});
+pub fn nvim_error<T: AsRef<str>>(s: &T) {
+    let _ = api::notify(s.as_ref(), types::LogLevel::Error, &opts::NotifyOpts {});
+}
+
+pub fn nvim_exec_lua<T: AsRef<str>>(script: T) -> Result<(), String> {
+    let script = format!("lua << EOF\n{}\nEOF\n", script.as_ref());
+    let _ = api::exec(&script, false).map_err(|_| "exec lua err".to_string())?;
+    Ok(())
 }
