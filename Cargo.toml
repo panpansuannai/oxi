@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["test_function", "neovim-0-9", "wip"]
-neovim-0-9 = []
+default = ["test_function", "wip"]
 test_function = []
 wip = []
 
@@ -16,5 +15,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 gitlab = "0.1604.0"
-nvim-oxi = {version = "0.3.0", features = ["neovim-0-9"]}
+nvim-oxi = {version = "0.3.0", features = ["neovim-0-9"] }
 lazy_static = "1.4"
+regex = "1.5"
+tokio = { version = "1.35.0", features = ["rt"] }

@@ -1,3 +1,4 @@
+use crate::async_task_center::nvim_scheduler;
 use crate::utils;
 use nvim_oxi::{api, api::opts, api::types};
 use std::ffi;
@@ -9,16 +10,26 @@ pub struct StructType {
 
 #[no_mangle]
 pub extern "C" fn do_some_thing() {
-    if let Err(e) = utils::nvim_exec_lua(
+    if let Err(e) = crate::async_task_center::async_task(async {
+        nvim_scheduler::api::nvim_info("hello".to_string()).await;
+    }) {
+        utils::nvim_error(&format!("push task err: {}", e));
+    }
+    /*
+    match utils::nvim_exec_lua(
         r#"
-    print('hello')
-    print('world')
-    local i = "hello"
-    print(i.." pan")
+        return "hello"
     "#,
     ) {
-        utils::nvim_error(&e);
+        Err(e) => {
+            utils::nvim_error(&e);
+            return;
+        }
+        Ok(s) => {
+            utils::nvim_info(&format!("ret is {:#?}", s));
+        }
     }
+    */
 }
 
 #[no_mangle]

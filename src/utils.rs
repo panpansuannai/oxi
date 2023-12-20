@@ -30,8 +30,10 @@ pub fn nvim_error<T: AsRef<str>>(s: &T) {
     let _ = api::notify(s.as_ref(), types::LogLevel::Error, &opts::NotifyOpts {});
 }
 
-pub fn nvim_exec_lua<T: AsRef<str>>(script: T) -> Result<(), String> {
+pub fn nvim_exec_lua<T: AsRef<str>>(script: T) -> Result<Option<String>, String> {
     let script = format!("lua << EOF\n{}\nEOF\n", script.as_ref());
-    let _ = api::exec(&script, false).map_err(|_| "exec lua err".to_string())?;
-    Ok(())
+    #[cfg(feature = "wip")]
+    let _ = nvim_info(&script);
+    let ret = api::exec(&script, false).map_err(|_| "exec lua err".to_string())?;
+    Ok(ret)
 }

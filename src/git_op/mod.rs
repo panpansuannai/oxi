@@ -74,7 +74,7 @@ pub extern "C" fn create_mr(param: param::CreateMRParam) {
     if let Err(e) = task_res {
         utils::nvim_error(&format!("push task err: {:?}", e));
     }
-    let _ = nvim_oxi::api::command("lua vim.fn.ScheduleTask()");
+    task_center::task_ready();
 }
 
 #[no_mangle]
@@ -100,5 +100,5 @@ pub extern "C" fn approve_mr(param: param::CreateMRParam) {
     if let Err(e) = task_res {
         utils::nvim_error(&format!("push task err: {:?}", e));
     }
-    let _ = nvim_oxi::api::command("lua vim.fn.ScheduleTask()");
+    task_center::task_ready();
 }
