@@ -1,6 +1,6 @@
+mod api;
 pub mod param;
 
-use crate::{task_center, utils};
 use gitlab::{api::projects::merge_requests::CreateMergeRequest, api::Query, types, Gitlab};
 use std::env;
 
@@ -20,10 +20,7 @@ impl GitlabCli {
             .map_err(|e| e.to_string())
     }
 
-    pub fn create_mr(
-        &self,
-        p: &param::CreateMRParamOwned,
-    ) -> Result<types::MergeRequestBasic, String> {
+    fn create_mr(&self, p: &param::MRParamOwned) -> Result<types::MergeRequestBasic, String> {
         CreateMergeRequest::builder()
             .project(p.project.to_owned().ok_or("project empty")?)
             .title(p.title.to_owned().ok_or("title empty")?)
@@ -36,7 +33,7 @@ impl GitlabCli {
             .map_err(|e| -> String { e.to_string() })
     }
 
-    pub fn approve_mr(&self, p: &param::CreateMRParamOwned) -> Result<(), String> {
+    fn approve_mr(&self, p: &param::MRParamOwned) -> Result<(), String> {
         let source = p.source.to_owned().ok_or("url empty")?;
         let id: u64 = source
             .parse()
@@ -49,56 +46,4 @@ impl GitlabCli {
             .query(&self.inner)
             .map_err(|e| -> String { e.to_string() })
     }
-}
-
-#[no_mangle]
-pub extern "C" fn create_mr(param: param::CreateMRParam) {
-    let p = param::CreateMRParamOwned::from(&param);
-    let task_res = task_center::push_task(Box::new(move || {
-        let cli = GitlabCli::new();
-        if let Err(ref e) = cli {
-            utils::nvim_error(&format!("new gitlab err: {}", e));
-            return;
-        }
-        let cli = cli.unwrap();
-        let _ = cli
-            .create_mr(&p)
-            .map(|mr| {
-                utils::nvim_info(format!("MR: {}", mr.web_url));
-            })
-            .map_err(|e| {
-                utils::nvim_error(&format!("create MR err: {}", e));
-            });
-    }));
-
-    if let Err(e) = task_res {
-        utils::nvim_error(&format!("push task err: {:?}", e));
-    }
-    task_center::task_ready();
-}
-
-#[no_mangle]
-pub extern "C" fn approve_mr(param: param::CreateMRParam) {
-    let p = param::CreateMRParamOwned::from(&param);
-    let task_res = task_center::push_task(Box::new(move || {
-        let cli = GitlabCli::new();
-        if let Err(ref e) = cli {
-            utils::nvim_error(&format!("new gitlab err: {}", e));
-            return;
-        }
-        let cli = cli.unwrap();
-        let _ = cli
-            .approve_mr(&p)
-            .map(|_| {
-                utils::nvim_info(format!("approve mr success!"));
-            })
-            .map_err(|e| {
-                utils::nvim_error(&format!("approve MR err: {}", e));
-            });
-    }));
-
-    if let Err(e) = task_res {
-        utils::nvim_error(&format!("push task err: {:?}", e));
-    }
-    task_center::task_ready();
 }

@@ -22,14 +22,17 @@ pub fn ffi_to_str(p: CharPtr) -> Option<String> {
     }
 }
 
+#[allow(unused)]
 pub fn nvim_info<T: AsRef<str>>(s: T) {
     let _ = api::notify(s.as_ref(), types::LogLevel::Info, &opts::NotifyOpts {});
 }
 
+#[allow(unused)]
 pub fn nvim_error<T: AsRef<str>>(s: &T) {
     let _ = api::notify(s.as_ref(), types::LogLevel::Error, &opts::NotifyOpts {});
 }
 
+#[allow(unused)]
 pub fn nvim_exec_lua<T: AsRef<str>>(script: T) -> Result<Option<String>, String> {
     let script = format!("lua << EOF\n{}\nEOF\n", script.as_ref());
     #[cfg(feature = "wip")]

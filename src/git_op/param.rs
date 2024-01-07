@@ -6,7 +6,7 @@ pub type CharPtr = *const ffi::c_char;
 
 #[repr(C)]
 #[derive(Debug)]
-pub struct CreateMRParam<'a> {
+pub struct MRParam<'a> {
     pub project: CharPtr,
     pub source: CharPtr,
     pub target: CharPtr,
@@ -16,7 +16,7 @@ pub struct CreateMRParam<'a> {
 }
 
 #[derive(Debug, Default)]
-pub struct CreateMRParamOwned {
+pub struct MRParamOwned {
     pub project: Option<String>,
     pub source: Option<String>,
     pub target: Option<String>,
@@ -24,9 +24,9 @@ pub struct CreateMRParamOwned {
     pub remove_source: i64,
 }
 
-impl<'a> From<&CreateMRParam<'a>> for CreateMRParamOwned {
-    fn from(value: &CreateMRParam) -> Self {
-        CreateMRParamOwned {
+impl<'a> From<&MRParam<'a>> for MRParamOwned {
+    fn from(value: &MRParam) -> Self {
+        MRParamOwned {
             project: utils::ffi_to_str(value.project),
             source: utils::ffi_to_str(value.source),
             target: utils::ffi_to_str(value.target),
@@ -36,4 +36,4 @@ impl<'a> From<&CreateMRParam<'a>> for CreateMRParamOwned {
     }
 }
 
-unsafe impl Send for CreateMRParamOwned {}
+unsafe impl Send for MRParamOwned {}

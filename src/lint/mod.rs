@@ -3,11 +3,13 @@ mod param;
 use param::*;
 
 use crate::async_task_center::{self, nvim_scheduler::api};
+use crate::utils;
 use std::process::Command;
 
 #[no_mangle]
 pub extern "C" fn go_static_check(param: GolangCheckParam) {
     let p = GolangCheckParamOwned::from(param);
+    let _ = utils::nvim_exec_lua(format!("oxi_lint_buf = vim.api.nvim_get_current_buf()"));
     let _ = async_task_center::async_task(async move {
         let mut cmd = &mut Command::new("staticcheck");
         if let Some(ref pkg) = p.package {
@@ -89,13 +91,16 @@ async fn setup_diagnostic(
         dnst.pop();
     }
     dnst.push(b'}');
+    if dnst.len() < 3 {
+        let _ = api::nvim_exec_lua(format!(r#"vim.notify("oxi lint success")"#)).await;
+        return Ok(());
+    }
     let dnst = String::from_utf8(dnst).map_err(|e| e.to_string())?;
     let _ = api::nvim_exec_lua(format!(
         r#"
-    local buf = vim.api.nvim_get_current_buf()
     local ns = vim.api.nvim_create_namespace("{0}")
     vim.diagnostic.reset(ns, 0)
-    vim.diagnostic.set(ns, buf, {1}, nil)
+    vim.diagnostic.set(ns, oxi_lint_buf, {1}, nil)
     "#,
         namesapce, dnst,
     ))

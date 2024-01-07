@@ -10,12 +10,13 @@ pub struct StructType {
 
 #[no_mangle]
 pub extern "C" fn do_some_thing() {
+    /*
     if let Err(e) = crate::async_task_center::async_task(async {
         nvim_scheduler::api::nvim_info("hello".to_string()).await;
     }) {
         utils::nvim_error(&format!("push task err: {}", e));
     }
-    /*
+    */
     match utils::nvim_exec_lua(
         r#"
         return "hello"
@@ -29,7 +30,6 @@ pub extern "C" fn do_some_thing() {
             utils::nvim_info(&format!("ret is {:#?}", s));
         }
     }
-    */
 }
 
 #[no_mangle]
